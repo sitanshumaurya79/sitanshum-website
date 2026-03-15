@@ -1,68 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Ludo Board</title>
-
-<style>
-
-body{
-font-family:Arial;
-text-align:center;
-background:#f4f4f4;
-}
-
-.board{
-width:450px;
-height:450px;
-margin:auto;
-display:grid;
-grid-template-columns:repeat(15,30px);
-grid-template-rows:repeat(15,30px);
-}
-
-.cell{
-border:1px solid #999;
-}
-
-.red{background:red;}
-.blue{background:blue;}
-.green{background:green;}
-.yellow{background:yellow;}
-.white{background:white;}
-
-</style>
-
+  <title>Memory Puzzle</title>
+  <style>
+    #game {
+      display: grid;
+      grid-template-columns: repeat(4, 100px);
+      grid-gap: 10px;
+      width: 440px;
+      margin: auto;
+    }
+    .card {
+      width: 100px;
+      height: 100px;
+      background: lightblue;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    .hidden {
+      background: gray;
+      color: transparent;
+    }
+  </style>
 </head>
-
 <body>
+  <h2 align="center">Memory Puzzle Game</h2>
+  <div id="game"></div>
 
-<h2>Ludo Board</h2>
-
-<div class="board" id="board"></div>
-
-<script>
-
-let board=document.getElementById("board")
-
-for(let i=0;i<225;i++){
-
-let cell=document.createElement("div")
-
-cell.className="cell white"
-
-board.appendChild(cell)
-
-}
-
-let cells=document.querySelectorAll(".cell")
-
-// simple color areas
-for(let i=0;i<30;i++) cells[i].classList.add("red")
-for(let i=195;i<225;i++) cells[i].classList.add("blue")
-for(let i=30;i<60;i++) cells[i].classList.add("green")
-for(let i=165;i<195;i++) cells[i].classList.add("yellow")
-
-</script>
-
+  <script src="script.js"></script>
 </body>
 </html>
