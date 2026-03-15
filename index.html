@@ -33,3 +33,48 @@
   <script src="script.js"></script>
 </body>
 </html>
+const game = document.getElementById("game");
+let values = ["A","A","B","B","C","C","D","D","E","E","F","F","G","G","H","H"];
+values = values.sort(() => Math.random() - 0.5);
+
+let flipped = [];
+let matched = [];
+
+function drawBoard() {
+  game.innerHTML = "";
+  values.forEach((val, i) => {
+    const card = document.createElement("div");
+    card.className = "card hidden";
+    card.textContent = val;
+    card.onclick = () => flipCard(card, i);
+    game.appendChild(card);
+  });
+}
+
+function flipCard(card, i) {
+  if(flipped.length < 2 && !flipped.includes(i) && !matched.includes(i)) {
+    card.classList.remove("hidden");
+    flipped.push(i);
+
+    if(flipped.length === 2) {
+      setTimeout(checkMatch, 500);
+    }
+  }
+}
+
+function checkMatch() {
+  const [i1, i2] = flipped;
+  if(values[i1] === values[i2]) {
+    matched.push(i1, i2);
+  } else {
+    document.querySelectorAll(".card")[i1].classList.add("hidden");
+    document.querySelectorAll(".card")[i2].classList.add("hidden");
+  }
+  flipped = [];
+
+  if(matched.length === values.length) {
+    alert("🎉 You Win!");
+  }
+}
+
+drawBoard();
