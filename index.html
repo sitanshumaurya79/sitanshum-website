@@ -24,24 +24,55 @@
       background: gray;
       color: transparent;
     }
+    #info {
+      text-align: center;
+      margin: 20px;
+      font-size: 18px;
+    }
   </style>
 </head>
 <body>
   <h2 align="center">Memory Puzzle Game</h2>
+  <div id="info">
+    <p>Level: <span id="level">1</span> | Score: <span id="score">0</span> | Time: <span id="time">0</span>s</p>
+  </div>
   <div id="game"></div>
 
   <script src="script.js"></script>
 </body>
-</html>
-const game = document.getElementById("game");
-let values = ["A","A","B","B","C","C","D","D","E","E","F","F","G","G","H","H"];
-values = values.sort(() => Math.random() - 0.5);
+</html>const game = document.getElementById("game");
+const levelDisplay = document.getElementById("level");
+const scoreDisplay = document.getElementById("score");
+const timeDisplay = document.getElementById("time");
 
-let flipped = [];
-let matched = [];
+let level = 1;
+let score = 0;
+let time = 0;
+let timer;
+let values, flipped, matched;
+
+function startGame() {
+  values = generateValues(level);
+  values = values.sort(() => Math.random() - 0.5);
+  flipped = [];
+  matched = [];
+  drawBoard();
+  resetTimer();
+}
+
+function generateValues(level) {
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  let pairs = level * 4; // Level 1 = 4 pairs, Level 2 = 8 pairs...
+  let arr = [];
+  for(let i=0; i<pairs; i++) {
+    arr.push(letters[i], letters[i]);
+  }
+  return arr;
+}
 
 function drawBoard() {
   game.innerHTML = "";
+  game.style.gridTemplateColumns = `repeat(${Math.sqrt(values.length)}, 100px)`;
   values.forEach((val, i) => {
     const card = document.createElement("div");
     card.className = "card hidden";
@@ -66,15 +97,32 @@ function checkMatch() {
   const [i1, i2] = flipped;
   if(values[i1] === values[i2]) {
     matched.push(i1, i2);
+    score += 10;
+    scoreDisplay.textContent = score;
   } else {
     document.querySelectorAll(".card")[i1].classList.add("hidden");
     document.querySelectorAll(".card")[i2].classList.add("hidden");
+    score -= 2;
+    scoreDisplay.textContent = score;
   }
   flipped = [];
 
   if(matched.length === values.length) {
-    alert("🎉 You Win!");
+    clear    alert(`🎉 Level ${level} Complete! Score: ${score}`);
+    level++;
+    levelDisplay.textContent = level;
+    startGame();
   }
 }
 
-drawBoard();
+function resetTimer() {
+  clearInterval(timer);
+  time = 0;
+  timeDisplay.textContent = time;
+  timer = setInterval(() => {
+    time++;
+    timeDisplay.textContent = time;
+  }, 1000);
+}
+
+startGame();
