@@ -1,57 +1,35 @@
+# Simple Android Mobile Game
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Puzzle Game</title>
-    <style>
-        body {
-            background-color: #f0f0f0;
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-        #game-container {
-            margin: 20px auto;
-            width: 80%;
-            max-width: 600px;
-            border: 2px solid #333;
-            padding: 10px;
-            background-color: #fff;
-        }
-        #image {
-            width: 100%;
-            height: auto;
-        }
-        .level-button {
-            margin: 5px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-    </style>
+    <title>Simple Game</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <audio autoplay loop>
-        <source src="background-music.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
     <div id="game-container">
-        <h1>Image Puzzle Game</h1>
-        <img id="image" src="puzzle-image.jpg" alt="Puzzle Image">
-        <div>
-            <button class="level-button" onclick="setLevel('easy')">Easy</button>
-            <button class="level-button" onclick="setLevel('medium')">Medium</button>
-            <button class="level-button" onclick="setLevel('hard')">Hard</button>
-        </div>
-        <div id="puzzle-pieces">
-            <!-- Puzzle pieces will be generated here -->
-        </div>
+        <h1>Welcome to the Game!</h1>
+        <button onclick="startGame('easy')">Easy</button>
+        <button onclick="startGame('medium')">Medium</button>
+        <button onclick="startGame('hard')">Hard</button>
     </div>
-    <script>
-        function setLevel(level) {
-            // Logic to set the game level and generate puzzle pieces
-            console.log("Level set to: " + level);
-        }
-    </script>
+
+    <div id="victory-screen" style="display:none;">
+        <h1>Congratulations!</h1>
+        <p>You have completed the game!</p>
+        <p>Developed by Sitanshu Maurya</p>
+        <button onclick="restartGame()">Play Again</button>
+    </div>
+
+    <audio id="background-music" loop>
+        <source src="background-music.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="game-sound">
+        <source src="game-sound.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="script.js"></script>
 </body>
 </html>
