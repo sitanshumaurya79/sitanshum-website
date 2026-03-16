@@ -1,26 +1,78 @@
-# Simple AI Chatbot
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Puzzle Game</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #puzzle-container {
+            display: flex;
+            flex-wrap: wrap;
+            width: 300px;
+            margin: 0 auto;
+        }
+        .piece {
+            width: 100px;
+            height: 100px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+        #level-selector {
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Puzzle Game</h1>
+    <div id="level-selector">
+        <label for="level">Select Level:</label>
+        <select id="level">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+        </select>
+    </div>
+    <div id="puzzle-container"></div>
+    <audio id="background-music" loop>
+        <source src="background-music.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <script>
+        const pieces = [];
+        const container = document.getElementById('puzzle-container');
+        const levelSelector = document.getElementById('level');
+        const music = document.getElementById('background-music');
 
-print("Sitanshu AI: Namaste! Mujhse baat karo. (exit likhkar band karo)")
+        function createPuzzle(level) {
+            pieces.length = 0;
+            container.innerHTML = '';
+            let numPieces = level === 'easy' ? 4 : level === 'medium' ? 9 : 16;
 
-while True:
-    user = input("Tum: ").lower()
+            for (let i = 0; i < numPieces; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'piece';
+                piece.style.backgroundImage = 'url("image.jpg")';
+                piece.style.backgroundPosition = `${(i % Math.sqrt(numPieces)) * -100}px ${(Math.floor(i / Math.sqrt(numPieces))) * -100}px`;
+                piece.style.backgroundSize = `${Math.sqrt(numPieces) * 100}px ${Math.sqrt(numPieces) * 100}px`;
+                piece.setAttribute('data-index', i);
+                piece.onclick = () => alert(`Piece ${i + 1} clicked!`);
+                pieces.push(piece);
+                container.appendChild(piece);
+            }
+        }
 
-    if user == "exit":
-        print("Sitanshu AI: Bye!")
-        break
+        levelSelector.addEventListener('change', () => {
+            createPuzzle(levelSelector.value);
+        });
 
-    elif "namaste" in user or "hello" in user:
-        print("Sitanshu AI: Namaste! Kaise ho?")
-    
-    elif "tumhara naam" in user:
-        print("Sitanshu AI: Mera naam Sitanshu AI hai.")
-    
-    elif "kaun banaya" in user:
-        print("Sitanshu AI: Mujhe Sitanshu Maurya ne banaya hai.")
-    
-    elif "time" in user:
-        import datetime
-        print("Sitanshu AI:", datetime.datetime.now().strftime("%H:%M:%S"))
-    
-    else:
-        print("Sitanshu AI: Mujhe samajh nahi aaya, thoda alag tarike se pucho.")
+        music.play();
+        createPuzzle('easy');
+    </script>
+</body>
+</html>
