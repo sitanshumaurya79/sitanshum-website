@@ -1,145 +1,177 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Image Puzzle Game - Sitanshu Maurya</title>
-<style>
-body{
-font-family: Arial;
-text-align:center;
-background:#222;
-color:white;
-}
-#controls{
-margin-bottom:15px;
-}
-#board{
-margin:auto;
-display:grid;
-gap:2px;
-background:#333;
-}
-.tile{
-cursor:pointer;
-display:flex;
-align-items:center;
-justify-content:center;
-border:1px solid #fff;
-background-size: cover;
-background-position: center;
-}
-button, select{
-padding:5px 10px;
-margin:5px;
-font-size:16px;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jigsaw Puzzle Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #2c3e50;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 { margin-bottom: 10px; }
+        .controls {
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        button:hover { background-color: #2ecc71; }
+        #board {
+            width: 400px;
+            height: 400px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            border: 4px solid #ecf0f1;
+            background-color: #34495e;
+            box-shadow: 0px 0px 15px rgba(0,0,0,0.5);
+        }
+        .tile {
+            box-sizing: border-box;
+            border: 1px solid #ffffff33;
+            cursor: grab;
+            background-image: url('https://images.unsplash.com/photo-1546527868-ccb7ee7fd897?q=80&w=400&h=400&auto=format&fit=crop'); /* Yahan apni image ka link dalein */
+            background-size: 400px 400px;
+        }
+        .tile:active { cursor: grabbing; }
+        #message {
+            font-size: 24px;
+            margin-top: 20px;
+            color: #f1c40f;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
 
-<h1>Image Puzzle Game</h1>
-<h3>By Sitanshu Maurya</h3>
+    <h1>Jigsaw Puzzle Game</h1>
+    <p>Tukdo ko drag aur drop karke image banayein!</p>
+    
+    <div class="controls">
+        <button onclick="startGame(3)">Easy (3x3)</button>
+        <button onclick="startGame(4)">Medium (4x4)</button>
+        <button onclick="startGame(5)">Hard (5x5)</button>
+        <button onclick="toggleMusic()" id="musicBtn" style="background-color: #e67e22;">Play Music</button>
+    </div>
 
-<div id="controls">
-<select id="difficulty">
-<option value="2">Easy (2x2)</option>
-<option value="3">Medium (3x3)</option>
-<option value="4">Hard (4x4)</option>
-</select>
-<button onclick="startGame()">Start</button>
-</div>
+    <div id="board"></div>
+    <div id="message"></div>
 
-<div id="board"></div>
+    <audio id="bgMusic" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="dropSound">
+        <source src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="winSound">
+        <source src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3" type="audio/mpeg">
+    </audio>
 
-<audio id="bgMusic" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" autoplay loop></audio>
+    <script>
+        const board = document.getElementById('board');
+        const message = document.getElementById('message');
+        const bgMusic = document.getElementById('bgMusic');
+        const dropSound = document.getElementById('dropSound');
+        const winSound = document.getElementById('winSound');
+        const musicBtn = document.getElementById('musicBtn');
 
-<script>
-let size=3;
-let board=[];
-let empty={x:0,y:0};
-let boardDiv=document.getElementById("board");
-let imgURL="https://i.imgur.com/1wXcVQ2.jpg"; // replace with your image
+        let gridSize = 3;
+        let tiles = [];
+        let draggedTile = null;
+        let isMusicPlaying = false;
 
-function startGame(){
-size=parseInt(document.getElementById("difficulty").value);
-boardDiv.style.gridTemplateColumns=`repeat(${size},100px)`;
-boardDiv.style.gridTemplateRows=`repeat(${size},100px)`;
-initBoard();
-shuffleBoard();
-drawBoard();
-}
+        // Music Play/Pause Toggle
+        function toggleMusic() {
+            if (isMusicPlaying) {
+                bgMusic.pause();
+                musicBtn.innerText = "Play Music";
+            } else {
+                bgMusic.play().catch(() => alert("Browser ne autoplay block kar diya hai, please button dobara dabayein."));
+                musicBtn.innerText = "Pause Music";
+            }
+            isMusicPlaying = !isMusicPlaying;
+        }
 
-function initBoard(){
-board=[];
-for(let y=0;y<size;y++){
-let row=[];
-for(let x=0;x<size;x++){
-row.push({num:y*size+x+1});
-}
-board.push(row);
-}
-empty={x:size-1,y:size-1};
-board[size-1][size-1].num=0;
-}
+        // Game Shuru karne ka function
+        function startGame(size) {
+            gridSize = size;
+            board.innerHTML = '';
+            message.innerText = '';
+            tiles = [];
+            
+            // Music chalu karein agar pehle se nahi chal raha
+            if (!isMusicPlaying) toggleMusic();
 
-function shuffleBoard(){
-for(let i=0;i<1000;i++){
-let moves=[{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
-let m=moves[Math.floor(Math.random()*4)];
-let nx=empty.x+m.x;
-let ny=empty.y+m.y;
-if(nx>=0 && nx<size && ny>=0 && ny<size){
-board[empty.y][empty.x]=board[ny][nx];
-board[ny][nx]={num:0};
-empty.x=nx;
-empty.y=ny;
-}
-}
-}
+            const tileSize = 400 / gridSize;
 
-function drawBoard(){
-boardDiv.innerHTML="";
-for(let y=0;y<size;y++){
-for(let x=0;x<size;x++){
-let cell=document.createElement("div");
-cell.classList.add("tile");
-cell.style.width="100px";
-cell.style.height="100px";
-if(board[y][x].num!=0){
-cell.style.backgroundImage=`url(${imgURL})`;
-let posX=100*(board[y][x].num%size-1);
-let posY=100*(Math.floor((board[y][x].num-1)/size));
-cell.style.backgroundPosition=`-${posX}px -${posY}px`;
-cell.onclick=()=>tileClick(x,y);
-}else{
-cell.style.background="#222";
-}
-boardDiv.appendChild(cell);
-}
-}
-}
+            // Tiles create karna
+            let tileObjects = [];
+            for (let r = 0; r < gridSize; r++) {
+                for (let c = 0; c < gridSize; c++) {
+                    tileObjects.push({
+                        id: r * gridSize + c,
+                        x: -c * tileSize,
+                        y: -r * tileSize
+                    });
+                }
+            }
 
-function tileClick(x,y){
-if((Math.abs(empty.x-x)+Math.abs(empty.y-y))==1){
-board[empty.y][empty.x]=board[y][x];
-board[y][x]={num:0};
-empty.x=x;
-empty.y=y;
-drawBoard();
-checkWin();
-}
-}
+            // Tiles ko shuffle (mix) karna
+            tileObjects.sort(() => Math.random() - 0.5);
 
-function checkWin(){
-let count=1;
-for(let y=0;y<size;y++){
-for(let x=0;x<size;x++){
-if(y==size-1 && x==size-1) continue;
-if(board[y][x].num!=count) return;
-count++;
-}
-}
-setTimeout(()=>{alert("Victory Sitanshu Maurya!");},200);
-}
-</script>
-</body>
-</html>
+            // Board par tiles lagana
+            tileObjects.forEach((obj, index) => {
+                let tile = document.createElement('div');
+                tile.classList.add('tile');
+                tile.style.width = tileSize + 'px';
+                tile.style.height = tileSize + 'px';
+                tile.style.backgroundPosition = `${obj.x}px ${obj.y}px`;
+                tile.dataset.correctId = obj.id;
+                tile.dataset.currentId = index;
+                tile.setAttribute('draggable', true);
+
+                // Drag and Drop Events
+                tile.addEventListener('dragstart', dragStart);
+                tile.addEventListener('dragover', dragOver);
+                tile.addEventListener('drop', dragDrop);
+
+                board.appendChild(tile);
+                tiles.push(tile);
+            });
+        }
+
+        function dragStart(e) {
+            draggedTile = this;
+        }
+
+        function dragOver(e) {
+            e.preventDefault(); // Drop allow karne ke liye jaruri hai
+        }
+
+        function dragDrop(e) {
+            let targetTile = this;
+            if (draggedTile === targetTile) return;
+
+            // Background positions swap karein
+            let tempBg = draggedTile.style.backgroundPosition;
+            draggedTile.style.backgroundPosition = targetTile.style.backgroundPosition;
+            targetTile.style.backgroundPosition = tempBg;
+
+            // IDs swap karein
+            let tempId = draggedTile.dataset.correctId;
+            draggedTile.dataset.correctId = targetTile.dataset.correctId;
+            targetTile.dataset.correctId = tempId
+          
