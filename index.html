@@ -10,69 +10,48 @@
             font-family: Arial, sans-serif;
             text-align: center;
         }
-        #puzzle-container {
-            display: flex;
-            flex-wrap: wrap;
-            width: 300px;
-            margin: 0 auto;
+        #game-container {
+            margin: 20px auto;
+            width: 80%;
+            max-width: 600px;
+            border: 2px solid #333;
+            padding: 10px;
+            background-color: #fff;
         }
-        .piece {
-            width: 100px;
-            height: 100px;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
+        #image {
+            width: 100%;
+            height: auto;
+        }
+        .level-button {
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
             cursor: pointer;
-        }
-        #level-selector {
-            margin: 20px;
         }
     </style>
 </head>
 <body>
-    <h1>Image Puzzle Game</h1>
-    <div id="level-selector">
-        <label for="level">Select Level:</label>
-        <select id="level">
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
-        </select>
-    </div>
-    <div id="puzzle-container"></div>
-    <audio id="background-music" loop>
+    <audio autoplay loop>
         <source src="background-music.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
+    <div id="game-container">
+        <h1>Image Puzzle Game</h1>
+        <img id="image" src="puzzle-image.jpg" alt="Puzzle Image">
+        <div>
+            <button class="level-button" onclick="setLevel('easy')">Easy</button>
+            <button class="level-button" onclick="setLevel('medium')">Medium</button>
+            <button class="level-button" onclick="setLevel('hard')">Hard</button>
+        </div>
+        <div id="puzzle-pieces">
+            <!-- Puzzle pieces will be generated here -->
+        </div>
+    </div>
     <script>
-        const pieces = [];
-        const container = document.getElementById('puzzle-container');
-        const levelSelector = document.getElementById('level');
-        const music = document.getElementById('background-music');
-
-        function createPuzzle(level) {
-            pieces.length = 0;
-            container.innerHTML = '';
-            let numPieces = level === 'easy' ? 4 : level === 'medium' ? 9 : 16;
-
-            for (let i = 0; i < numPieces; i++) {
-                const piece = document.createElement('div');
-                piece.className = 'piece';
-                piece.style.backgroundImage = 'url("image.jpg")';
-                piece.style.backgroundPosition = `${(i % Math.sqrt(numPieces)) * -100}px ${(Math.floor(i / Math.sqrt(numPieces))) * -100}px`;
-                piece.style.backgroundSize = `${Math.sqrt(numPieces) * 100}px ${Math.sqrt(numPieces) * 100}px`;
-                piece.setAttribute('data-index', i);
-                piece.onclick = () => alert(`Piece ${i + 1} clicked!`);
-                pieces.push(piece);
-                container.appendChild(piece);
-            }
+        function setLevel(level) {
+            // Logic to set the game level and generate puzzle pieces
+            console.log("Level set to: " + level);
         }
-
-        levelSelector.addEventListener('change', () => {
-            createPuzzle(levelSelector.value);
-        });
-
-        music.play();
-        createPuzzle('easy');
     </script>
 </body>
 </html>
