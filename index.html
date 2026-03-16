@@ -1,128 +1,145 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Memory Puzzle</title>
-  <style>
-    #game {
-      display: grid;
-      grid-template-columns: repeat(4, 100px);
-      grid-gap: 10px;
-      width: 440px;
-      margin: auto;
-    }
-    .card {
-      width: 100px;
-      height: 100px;
-      background: lightblue;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      cursor: pointer;
-    }
-    .hidden {
-      background: gray;
-      color: transparent;
-    }
-    #info {
-      text-align: center;
-      margin: 20px;
-      font-size: 18px;
-    }
-  </style>
+<title>Image Puzzle Game - Sitanshu Maurya</title>
+<style>
+body{
+font-family: Arial;
+text-align:center;
+background:#222;
+color:white;
+}
+#controls{
+margin-bottom:15px;
+}
+#board{
+margin:auto;
+display:grid;
+gap:2px;
+background:#333;
+}
+.tile{
+cursor:pointer;
+display:flex;
+align-items:center;
+justify-content:center;
+border:1px solid #fff;
+background-size: cover;
+background-position: center;
+}
+button, select{
+padding:5px 10px;
+margin:5px;
+font-size:16px;
+}
+</style>
 </head>
 <body>
-  <h2 align="center">Memory Puzzle Game</h2>
-  <div id="info">
-    <p>Level: <span id="level">1</span> | Score: <span id="score">0</span> | Time: <span id="time">0</span>s</p>
-  </div>
-  <div id="game"></div>
 
-  <script src="script.js"></script>
+<h1>Image Puzzle Game</h1>
+<h3>By Sitanshu Maurya</h3>
+
+<div id="controls">
+<select id="difficulty">
+<option value="2">Easy (2x2)</option>
+<option value="3">Medium (3x3)</option>
+<option value="4">Hard (4x4)</option>
+</select>
+<button onclick="startGame()">Start</button>
+</div>
+
+<div id="board"></div>
+
+<audio id="bgMusic" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" autoplay loop></audio>
+
+<script>
+let size=3;
+let board=[];
+let empty={x:0,y:0};
+let boardDiv=document.getElementById("board");
+let imgURL="https://i.imgur.com/1wXcVQ2.jpg"; // replace with your image
+
+function startGame(){
+size=parseInt(document.getElementById("difficulty").value);
+boardDiv.style.gridTemplateColumns=`repeat(${size},100px)`;
+boardDiv.style.gridTemplateRows=`repeat(${size},100px)`;
+initBoard();
+shuffleBoard();
+drawBoard();
+}
+
+function initBoard(){
+board=[];
+for(let y=0;y<size;y++){
+let row=[];
+for(let x=0;x<size;x++){
+row.push({num:y*size+x+1});
+}
+board.push(row);
+}
+empty={x:size-1,y:size-1};
+board[size-1][size-1].num=0;
+}
+
+function shuffleBoard(){
+for(let i=0;i<1000;i++){
+let moves=[{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
+let m=moves[Math.floor(Math.random()*4)];
+let nx=empty.x+m.x;
+let ny=empty.y+m.y;
+if(nx>=0 && nx<size && ny>=0 && ny<size){
+board[empty.y][empty.x]=board[ny][nx];
+board[ny][nx]={num:0};
+empty.x=nx;
+empty.y=ny;
+}
+}
+}
+
+function drawBoard(){
+boardDiv.innerHTML="";
+for(let y=0;y<size;y++){
+for(let x=0;x<size;x++){
+let cell=document.createElement("div");
+cell.classList.add("tile");
+cell.style.width="100px";
+cell.style.height="100px";
+if(board[y][x].num!=0){
+cell.style.backgroundImage=`url(${imgURL})`;
+let posX=100*(board[y][x].num%size-1);
+let posY=100*(Math.floor((board[y][x].num-1)/size));
+cell.style.backgroundPosition=`-${posX}px -${posY}px`;
+cell.onclick=()=>tileClick(x,y);
+}else{
+cell.style.background="#222";
+}
+boardDiv.appendChild(cell);
+}
+}
+}
+
+function tileClick(x,y){
+if((Math.abs(empty.x-x)+Math.abs(empty.y-y))==1){
+board[empty.y][empty.x]=board[y][x];
+board[y][x]={num:0};
+empty.x=x;
+empty.y=y;
+drawBoard();
+checkWin();
+}
+}
+
+function checkWin(){
+let count=1;
+for(let y=0;y<size;y++){
+for(let x=0;x<size;x++){
+if(y==size-1 && x==size-1) continue;
+if(board[y][x].num!=count) return;
+count++;
+}
+}
+setTimeout(()=>{alert("Victory Sitanshu Maurya!");},200);
+}
+</script>
 </body>
-</html>const game = document.getElementById("game");
-const levelDisplay = document.getElementById("level");
-const scoreDisplay = document.getElementById("score");
-const timeDisplay = document.getElementById("time");
-
-let level = 1;
-let score = 0;
-let time = 0;
-let timer;
-let values, flipped, matched;
-
-function startGame() {
-  values = generateValues(level);
-  values = values.sort(() => Math.random() - 0.5);
-  flipped = [];
-  matched = [];
-  drawBoard();
-  resetTimer();
-}
-
-function generateValues(level) {
-  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-  let pairs = level * 4; // Level 1 = 4 pairs, Level 2 = 8 pairs...
-  let arr = [];
-  for(let i=0; i<pairs; i++) {
-    arr.push(letters[i], letters[i]);
-  }
-  return arr;
-}
-
-function drawBoard() {
-  game.innerHTML = "";
-  game.style.gridTemplateColumns = `repeat(${Math.sqrt(values.length)}, 100px)`;
-  values.forEach((val, i) => {
-    const card = document.createElement("div");
-    card.className = "card hidden";
-    card.textContent = val;
-    card.onclick = () => flipCard(card, i);
-    game.appendChild(card);
-  });
-}
-
-function flipCard(card, i) {
-  if(flipped.length < 2 && !flipped.includes(i) && !matched.includes(i)) {
-    card.classList.remove("hidden");
-    flipped.push(i);
-
-    if(flipped.length === 2) {
-      setTimeout(checkMatch, 500);
-    }
-  }
-}
-
-function checkMatch() {
-  const [i1, i2] = flipped;
-  if(values[i1] === values[i2]) {
-    matched.push(i1, i2);
-    score += 10;
-    scoreDisplay.textContent = score;
-  } else {
-    document.querySelectorAll(".card")[i1].classList.add("hidden");
-    document.querySelectorAll(".card")[i2].classList.add("hidden");
-    score -= 2;
-    scoreDisplay.textContent = score;
-  }
-  flipped = [];
-
-  if(matched.length === values.length) {
-    clear    alert(`🎉 Level ${level} Complete! Score: ${score}`);
-    level++;
-    levelDisplay.textContent = level;
-    startGame();
-  }
-}
-
-function resetTimer() {
-  clearInterval(timer);
-  time = 0;
-  timeDisplay.textContent = time;
-  timer = setInterval(() => {
-    time++;
-    timeDisplay.textContent = time;
-  }, 1000);
-}
-
-startGame();
+</html>
